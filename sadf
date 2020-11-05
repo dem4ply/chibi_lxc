@@ -1,0 +1,34 @@
+lxc-start centos_7_test 20200412145427.996 INFO     confile - confile.c:set_config_idmaps:2008 - Read uid map: type g nsid 0 hostid 100000 range 65536
+lxc-start centos_7_test 20200412145427.996 TRACE    commands - commands.c:lxc_cmd:285 - Connection refused - Command "get_init_pid" failed to connect command socket
+lxc-start centos_7_test 20200412145427.996 TRACE    commands - commands.c:lxc_cmd:285 - Connection refused - Command "get_state" failed to connect command socket
+lxc-start centos_7_test 20200412145427.996 TRACE    start - start.c:lxc_init_handler:701 - Created anonymous pair {4,5} of unix sockets
+lxc-start centos_7_test 20200412145427.996 TRACE    commands - commands.c:lxc_cmd_init:1554 - Created abstract unix socket "/home/dem4ply/.local/share/lxc/centos_7_test/command"
+lxc-start centos_7_test 20200412145427.996 TRACE    start - start.c:lxc_init_handler:714 - Unix domain socket 6 for command server is ready
+lxc-start centos_7_test 20200412145427.997 INFO     lxccontainer - lxccontainer.c:do_lxcapi_start:972 - Set process title to [lxc monitor] /home/dem4ply/.local/share/lxc centos_7_test
+lxc-start centos_7_test 20200412145427.998 DEBUG    lxccontainer - lxccontainer.c:wait_on_daemonized_start:830 - First child 74902 exited
+lxc-start centos_7_test 20200412145427.998 TRACE    start - start.c:lxc_start:2063 - Doing lxc_start
+lxc-start centos_7_test 20200412145427.998 INFO     lsm - lsm/lsm.c:lsm_init:29 - LSM security driver nop
+lxc-start centos_7_test 20200412145427.998 TRACE    start - start.c:lxc_init:738 - Initialized LSM
+lxc-start centos_7_test 20200412145427.998 TRACE    start - start.c:lxc_serve_state_clients:427 - Set container state to STARTING
+lxc-start centos_7_test 20200412145427.998 TRACE    start - start.c:lxc_serve_state_clients:430 - No state clients registered
+lxc-start centos_7_test 20200412145427.998 TRACE    start - start.c:lxc_init:744 - Set container state to "STARTING"
+lxc-start centos_7_test 20200412145427.998 TRACE    start - start.c:lxc_init:800 - Set environment variables
+lxc-start centos_7_test 20200412145427.998 TRACE    start - start.c:lxc_init:805 - Ran pre-start hooks
+lxc-start centos_7_test 20200412145427.998 TRACE    start - start.c:setup_signal_fd:320 - Created signal file descriptor 8
+lxc-start centos_7_test 20200412145427.998 TRACE    start - start.c:lxc_init:814 - Set up signal fd
+lxc-start centos_7_test 20200412145428.306 DEBUG    terminal - terminal.c:lxc_terminal_peer_default:655 - No such device - The process does not have a controlling terminal
+lxc-start centos_7_test 20200412145428.340 TRACE    start - start.c:lxc_init:822 - Created console
+lxc-start centos_7_test 20200412145428.356 ERROR    conf - conf.c:chown_mapped_root:2903 - No uid mapping for container root
+lxc-start centos_7_test 20200412145428.385 ERROR    terminal - terminal.c:lxc_terminal_map_ids:1172 - Failed to chown terminal "/dev/pts/1"
+lxc-start centos_7_test 20200412145428.412 ERROR    start - start.c:lxc_init:826 - Failed to chown console
+lxc-start centos_7_test 20200412145428.529 ERROR    start - start.c:__lxc_start:1893 - Failed to initialize container "centos_7_test"
+lxc-start centos_7_test 20200412145428.554 TRACE    start - start.c:lxc_serve_state_clients:427 - Set container state to ABORTING
+lxc-start centos_7_test 20200412145428.565 TRACE    start - start.c:lxc_serve_state_clients:430 - No state clients registered
+lxc-start centos_7_test 20200412145428.601 TRACE    start - start.c:lxc_serve_state_clients:427 - Set container state to STOPPING
+lxc-start centos_7_test 20200412145428.613 TRACE    start - start.c:lxc_serve_state_clients:430 - No state clients registered
+lxc-start centos_7_test 20200412145428.646 TRACE    start - start.c:lxc_end:949 - Closed command socket
+lxc-start centos_7_test 20200412145428.673 TRACE    start - start.c:lxc_end:960 - Set container state to "STOPPED"
+lxc-start centos_7_test 20200412145428.730 ERROR    lxccontainer - lxccontainer.c:wait_on_daemonized_start:843 - No such file or directory - Failed to receive the container state
+lxc-start centos_7_test 20200412145428.833 ERROR    lxc_start - tools/lxc_start.c:main:308 - The container failed to start
+lxc-start centos_7_test 20200412145428.879 ERROR    lxc_start - tools/lxc_start.c:main:311 - To get more details, run the container in foreground mode
+lxc-start centos_7_test 20200412145428.906 ERROR    lxc_start - tools/lxc_start.c:main:313 - Additional information can be obtained by setting the --logfile and --logpriority options
