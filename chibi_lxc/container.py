@@ -60,7 +60,7 @@ class Container_meta( type ):
         _env_vars = list(
             e for c in containers_with_env_vars for e in c.env_vars.items() )
 
-        _set_env_vars = set()
+        # _set_env_vars = set()
         env_vars = Chibi_atlas()
         for k, v in _env_vars:
             env_vars[ k ] = v
