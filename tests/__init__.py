@@ -1,3 +1,5 @@
 # -*- coding: utf-8 -*-
+from chibi.config import basic_config
 
-"""Unit test package for chibi_lxc."""
+
+basic_config( level='DEBUG' )

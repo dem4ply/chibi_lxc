@@ -75,7 +75,7 @@ class Test_container_no_created( unittest.TestCase ):
         self.assertTrue( result )
         info = Centos_test.info
         self.assertTrue( info )
-        self.assertFalse( info.is_running )
+        self.assertFalse( Centos_test.is_running )
 
     def test_exists_should_return_false( self ):
         self.assertFalse( Centos_test.exists )

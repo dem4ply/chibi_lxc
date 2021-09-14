@@ -34,10 +34,43 @@ class Container_meta( type ):
             for k, v in clsobj.provision_folders.items():
                 clsobj.provision_folders[k] = Chibi_path( v )
 
-
         containers = list(
             filter( lambda x: issubclass( x, Container ), bases ) )
-        containers_with_scripts = filter( lambda x: x.scripts, containers )
+        containers_with_env_vars = list(
+            filter( lambda x: x.env_vars, containers ) )
+        containers_with_scripts = list(
+            filter( lambda x: x.scripts, containers ) )
+        containers_with_status_scripts = list(
+            filter( lambda x: x.status_scripts, containers ) )
+
+        cls.set_scripts( clsobj, containers_with_scripts )
+        cls.set_status_scripts( clsobj, containers_with_status_scripts )
+
+        cls.set_env_vars( clsobj, containers_with_env_vars )
+
+        names = ( c.name for c in containers )
+        equal_names = ( clsobj.name == name for name in names )
+        if any( equal_names ):
+            clsobj.name = clsobj.__name__
+
+        return clsobj
+
+    @staticmethod
+    def set_env_vars( cls_obj, containers_with_env_vars ):
+        _env_vars = list(
+            e for c in containers_with_env_vars for e in c.env_vars.items() )
+
+        _set_env_vars = set()
+        env_vars = Chibi_atlas()
+        for k, v in _env_vars:
+            env_vars[ k ] = v
+
+        env_vars.update( cls_obj.env_vars )
+        cls_obj.env_vars = env_vars
+
+
+    @staticmethod
+    def set_scripts( cls_obj, containers_with_scripts ):
         _scripts = (
             s for c in containers_with_scripts for s in c.scripts )
         _set_scripts = set()
@@ -47,21 +80,35 @@ class Container_meta( type ):
                 scripts.append( script )
                 _set_scripts.add( script )
 
-        if clsobj.scripts:
-            for script in clsobj.scripts:
+        if cls_obj.scripts:
+            for script in cls_obj.scripts:
                 if script not in _set_scripts:
                     scripts.append( script )
                     _set_scripts.add( script )
-            clsobj.scripts = tuple( scripts )
+            cls_obj.scripts = tuple( scripts )
         else:
-            clsobj.scripts = scripts
+            cls_obj.scripts = scripts
 
-        names = ( c.name for c in containers )
-        equal_names = ( clsobj.name == name for name in names )
-        if any( equal_names ):
-            clsobj.name = clsobj.__name__
+    @staticmethod
+    def set_status_scripts( cls_obj, containers_with_scripts ):
+        _set_status_scripts = set()
 
-        return clsobj
+        _status_scripts = (
+            s for c in containers_with_scripts for s in c.status_scripts )
+        status_scripts = []
+        for script in _status_scripts:
+            if script not in _set_status_scripts:
+                status_scripts.append( script )
+                _set_status_scripts.add( script )
+
+        if cls_obj.status_scripts:
+            for script in cls_obj.status_scripts:
+                if script not in _set_status_scripts:
+                    status_scripts.append( script )
+                    _set_status_scripts.add( script )
+            cls_obj.status_scripts = tuple( status_scripts )
+        else:
+            cls_obj.status_scripts = status_scripts
 
 
 class Container( metaclass=Container_meta ):
@@ -73,6 +120,7 @@ class Container( metaclass=Container_meta ):
     provision_root = Chibi_path( 'home/chibi/provision/' )
     provision_folders = Chibi_atlas()
     scripts = None
+    status_scripts = None
 
     env_vars = Chibi_atlas( {
         'PROVISION_PATH': '/' + str( provision_root ) + 'scripts'
@@ -81,11 +129,9 @@ class Container( metaclass=Container_meta ):
     @Class_property
     def info( cls ):
         result = lxc.Info.name( cls.name ).run()
-        if result:
-            result.result
-        else:
+        if not result:
             raise Not_exists_error( result.error )
-        return result
+        return result.result
 
     @Class_property
     def config( cls ):
@@ -120,7 +166,7 @@ class Container( metaclass=Container_meta ):
 
     @Class_property
     def is_running( cls ):
-        return cls.info.is_running
+        return cls.info.state == 'running'
 
     @classmethod
     def create( cls ):
@@ -128,6 +174,7 @@ class Container( metaclass=Container_meta ):
         template = template.parameters(
             '-d', cls.distribution, '-r', cls.version,
             '--arch', cls.arch )
+        print( template.preview() )
         result = template.run()
         if not result:
             raise Creation_error(
@@ -216,6 +263,21 @@ class Container( metaclass=Container_meta ):
             if not result:
                 logger.error(
                     f"fallo el script '{script}' se regreso el codigo "
+                    f"{result.return_code}" )
+                return result
+
+    @classmethod
+    def run_status_scripts( cls ):
+        for script in cls.status_scripts:
+            if isinstance( script, tuple ):
+                args = cls._prepare_script_arguments( *script[1:] )
+                script = script[0]
+                result = cls.attach( script, *args )
+            else:
+                result = cls.attach( script )
+            if not result:
+                logger.error(
+                    f"fallo el status script '{script}' se regreso el codigo "
                     f"{result.return_code}" )
                 return result
 

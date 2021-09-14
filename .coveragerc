@@ -1,6 +1,7 @@
 # .coveragerc to control coverage.py
 [run]
 branch = True
+omit = venv/*, /usr/*
 
 source = .
 
@@ -24,7 +25,6 @@ exclude_lines =
 
 ignore_errors = True
 
-omit = venv/*, /usr/*
 skip_covered = True
 
 [html]
