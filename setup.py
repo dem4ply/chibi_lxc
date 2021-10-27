@@ -40,6 +40,6 @@ setup(
     name='chibi_lxc',
     packages=find_packages(include=['chibi_lxc', 'chibi_lxc.*']),
     url='https://github.com/dem4ply/chibi_lxc',
-    version='0.0.2',
+    version='0.0.3',
     zip_safe=False,
 )
