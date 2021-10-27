@@ -121,6 +121,7 @@ class Container( metaclass=Container_meta ):
     provision_folders = Chibi_atlas()
     scripts = None
     status_scripts = None
+    extra_hosts = None
 
     env_vars = Chibi_atlas( {
         'PROVISION_PATH': '/' + str( provision_root ) + 'scripts'
@@ -242,6 +243,12 @@ class Container( metaclass=Container_meta ):
                 v, real_folder )
             if hosts and hosts.exists:
                 hosts.copy( real_folder + 'hosts' )
+
+    @Class_property
+    def hosts( self ):
+        if self.extra_hosts:
+            return [ self.name, *self.extra_hosts ]
+        return [ self.name ]
 
     @classmethod
     def attach( cls, script, *args ):

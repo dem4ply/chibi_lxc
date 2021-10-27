@@ -16,6 +16,10 @@ class Centos_test_auto_rename( Centos_test ):
     pass
 
 
+class Centos_hosts_extra( Centos_test ):
+    extra_hosts = [ 'another' ]
+
+
 class Test_container_created( unittest.TestCase ):
     @classmethod
     def setUpClass( cls ):
@@ -84,3 +88,12 @@ class Test_container_no_created( unittest.TestCase ):
         self.assertEqual(
             Centos_test_auto_rename.name, 'Centos_test_auto_rename' )
         self.assertNotEqual( Centos_test.name, Centos_test_auto_rename.name )
+
+
+class Test_container_hosts( unittest.TestCase ):
+    def test_without_extra_hosts_should_return_only_his_name( self ):
+        self.assertEqual( Centos_test.hosts, [ Centos_test.name ] )
+
+    def test_with_extra_hosts_should_return_only_his_name( self ):
+        expected = [ Centos_hosts_extra.name, *Centos_hosts_extra.extra_hosts ]
+        self.assertEqual( Centos_hosts_extra.hosts, expected )

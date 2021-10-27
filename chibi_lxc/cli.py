@@ -54,14 +54,15 @@ def init_hosts_file():
     hosts.write()
 
 
-def add_address_to_host( address, host ):
-    remove_host_if_exists( host )
+def add_address_to_host( address, *hosts ):
+    for host in hosts:
+        remove_host_if_exists( host )
     hosts = read_hosts()
     if not hosts.entries:
         init_hosts_file()
         hosts = read_hosts()
     hosts.add( [ HostsEntry(
-        entry_type='ipv4', address=address, names=[ host ] ) ] )
+        entry_type='ipv4', address=address, names=list( hosts ) ) ] )
     hosts.write()
 
 
@@ -167,7 +168,7 @@ def main():
             container.provision()
             container.start()
             ip = get_ip( container )
-            add_address_to_host( ip, container.name )
+            add_address_to_host( ip, *container.hosts )
             if not exists:
                 container.provision()
                 container.run_scripts()
@@ -183,7 +184,7 @@ def main():
                 container.provision()
                 container.start()
                 time.sleep( 10 )
-                add_address_to_host( container.info.ip, container.name )
+                add_address_to_host( container.info.ip, *container.hosts )
                 container.provision()
                 container.run_scripts()
 
