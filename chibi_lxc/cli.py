@@ -57,13 +57,13 @@ def init_hosts_file():
 def add_address_to_host( address, *hosts ):
     for host in hosts:
         remove_host_if_exists( host )
-    hosts = read_hosts()
-    if not hosts.entries:
+    hosts_in_file = read_hosts()
+    if not hosts_in_file.entries:
         init_hosts_file()
-        hosts = read_hosts()
-    hosts.add( [ HostsEntry(
+        hosts_in_file = read_hosts()
+    hosts_in_file.add( [ HostsEntry(
         entry_type='ipv4', address=address, names=list( hosts ) ) ] )
-    hosts.write()
+    hosts_in_file.write()
 
 
 def main():

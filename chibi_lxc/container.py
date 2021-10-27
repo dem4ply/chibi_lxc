@@ -245,10 +245,10 @@ class Container( metaclass=Container_meta ):
                 hosts.copy( real_folder + 'hosts' )
 
     @Class_property
-    def hosts( self ):
-        if self.extra_hosts:
-            return [ self.name, *self.extra_hosts ]
-        return [ self.name ]
+    def hosts( cls ):
+        if cls.extra_hosts:
+            return [ cls.name, *cls.extra_hosts ]
+        return [ cls.name ]
 
     @classmethod
     def attach( cls, script, *args ):
