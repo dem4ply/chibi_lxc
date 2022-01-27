@@ -59,6 +59,7 @@ the scripts should be in the folder provision_folders[ 'scripts' ]
 create the container
 
 ::
+
 	chibi_lxc up Centos_8 # create the container
 	chibi_lxc provision Centos_8 # not needed the first time
 	chibi_lxc list # lista los container configurados
