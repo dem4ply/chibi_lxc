@@ -2,6 +2,11 @@
 # -*- coding: utf-8 -*-
 import unittest
 from chibi_lxc.container import Container, Not_exists_error
+from chibi.config import configuration
+from chibi.config import basic_config
+
+
+# configuration.loggers[ 'chibi.command' ].level = 'DEBUG'
 
 
 class Unexisting_container( Container ):

@@ -130,6 +130,18 @@ def main():
         "containers", nargs='+', metavar="containers",
         help="contenedores que se iniciaran" )
 
+    parser_attach = sub_parsers.add_parser(
+        'attach', help='attach the container', )
+    parser_attach.add_argument(
+        "container",
+        help="contenedores que se hara attach" )
+
+    parser_host = sub_parsers.add_parser(
+        'host', help='update the host file', )
+    parser_host.add_argument(
+        "--update", "-u", action="store_true",
+        help="actualiza el archivo de hosts en /etc/hosts" )
+
     args = parser.parse_args()
     basic_config( level=args.log_level )
     load_config( args.config )
@@ -205,6 +217,28 @@ def main():
                 for k, v in info.items():
                     print( '\t', k, v )
 
+    if args.command == 'host':
+        if args.update:
+            for container in configuration.chibi_lxc.containers.values():
+                try:
+                    add_address_to_host( container.info.ip, *container.hosts )
+                except Not_exists_error:
+                    pass
+        else:
+            print( '{:<15}{:<15}{:<15}{:}'.format(
+                'name', 'state', 'ip', 'hosts' ) )
+            for container in configuration.chibi_lxc.containers.values():
+                try:
+                    info = container.info
+                    ip = info.ip
+                    state = info.state
+                    hosts = " ".join( container.hosts )
+                    print( f'{container.name:<15}{state:<15}{ip:<15}{hosts}' )
+                except Not_exists_error:
+                    ip = '-'
+                    state = 'not exists'
+                    hosts = " ".join( container.hosts )
+                    print( f'{container.name:<15}{state:<15}{ip:<15}{hosts}' )
 
 
     if args.command == 'info':
@@ -228,6 +262,11 @@ def main():
         for container in args.containers:
             container = containers[ container ]
             container.stop()
+
+    if args.command == 'attach':
+        containers = configuration.chibi_lxc.containers
+        container = containers[ args.container ]
+        container.attach().run()
 
     return 0
 

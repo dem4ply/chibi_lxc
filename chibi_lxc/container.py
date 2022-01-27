@@ -2,7 +2,8 @@ import os
 import logging
 from chibi.atlas import Chibi_atlas
 from chibi.file import Chibi_path
-from chibi_command import lxc
+from chibi_command.lxc import lxc
+from chibi_command.lxc import delegate as lxc_delegate
 from chibi_command.rsync import Rsync
 from chibi_hybrid import Class_property
 from chibi_lxc.file.config import Chibi_lxc_config
@@ -22,6 +23,7 @@ class Not_exists_error( Exception ):
 
 class Creation_error( Exception ):
     pass
+
 
 class Destruction_error( Exception ):
     pass
@@ -67,7 +69,6 @@ class Container_meta( type ):
 
         env_vars.update( cls_obj.env_vars )
         cls_obj.env_vars = env_vars
-
 
     @staticmethod
     def set_scripts( cls_obj, containers_with_scripts ):
@@ -115,7 +116,7 @@ class Container( metaclass=Container_meta ):
     name = "unset"
     distribution = 'centos'
     arch = 'amd64'
-    version = '7'
+    version = '8'
 
     provision_root = Chibi_path( 'home/chibi/provision/' )
     provision_folders = Chibi_atlas()
@@ -123,13 +124,22 @@ class Container( metaclass=Container_meta ):
     status_scripts = None
     extra_hosts = None
 
+    delegate = True
+
     env_vars = Chibi_atlas( {
         'PROVISION_PATH': '/' + str( provision_root ) + 'scripts'
     } )
 
     @Class_property
+    def lxc( cls ):
+        if cls.delegate:
+            return lxc_delegate
+        else:
+            return lxc
+
+    @Class_property
     def info( cls ):
-        result = lxc.Info.name( cls.name ).run()
+        result = cls.lxc.Info.name( cls.name ).run()
         if not result:
             raise Not_exists_error( result.error )
         return result.result
@@ -146,7 +156,7 @@ class Container( metaclass=Container_meta ):
 
     @Class_property
     def exists( cls ):
-        result = lxc.Info.name( cls.name ).run()
+        result = cls.lxc.Info.name( cls.name ).run()
         return bool( result )
 
     @Class_property
@@ -171,7 +181,7 @@ class Container( metaclass=Container_meta ):
 
     @classmethod
     def create( cls ):
-        template = lxc.Create.name( cls.name ).template( 'download' )
+        template = cls.lxc.Create.name( cls.name ).template( 'download' )
         template = template.parameters(
             '-d', cls.distribution, '-r', cls.version,
             '--arch', cls.arch )
@@ -185,7 +195,7 @@ class Container( metaclass=Container_meta ):
 
     @classmethod
     def start( cls, daemon=True ):
-        command = lxc.Start.name( cls.name )
+        command = cls.lxc.Start.name( cls.name )
         if daemon:
             command.daemon()
         result = command.run()
@@ -193,7 +203,7 @@ class Container( metaclass=Container_meta ):
 
     @classmethod
     def stop( cls ):
-        command = lxc.Stop.name( cls.name )
+        command = cls.lxc.Stop.name( cls.name )
         result = command.run()
         return result
 
@@ -201,7 +211,7 @@ class Container( metaclass=Container_meta ):
     def destroy( cls, stop=False ):
         if cls.is_running and stop:
             cls.stop()
-        template = lxc.Destroy.name( cls.name )
+        template = cls.lxc.Destroy.name( cls.name )
         result = template.run()
         if not result:
             raise Destruction_error(
@@ -251,8 +261,15 @@ class Container( metaclass=Container_meta ):
         return [ cls.name ]
 
     @classmethod
-    def attach( cls, script, *args ):
-        attach = lxc.Attach.name( cls.name )
+    def attach( cls ):
+        attach = cls.lxc.Attach.name( cls.name )
+        for k, v in cls.env_vars.items():
+            attach.set_var( k, v )
+        return attach
+
+    @classmethod
+    def attach_script( cls, script, *args ):
+        attach = cls.attach()
         for k, v in cls.env_vars.items():
             attach.set_var( k, v )
         command, script = cls._prepare_script( script )
@@ -264,9 +281,9 @@ class Container( metaclass=Container_meta ):
             if isinstance( script, tuple ):
                 args = cls._prepare_script_arguments( *script[1:] )
                 script = script[0]
-                result = cls.attach( script, *args )
+                result = cls.attach_script( script, *args )
             else:
-                result = cls.attach( script )
+                result = cls.attach_script( script )
             if not result:
                 logger.error(
                     f"fallo el script '{script}' se regreso el codigo "
@@ -279,9 +296,9 @@ class Container( metaclass=Container_meta ):
             if isinstance( script, tuple ):
                 args = cls._prepare_script_arguments( *script[1:] )
                 script = script[0]
-                result = cls.attach( script, *args )
+                result = cls.attach_script( script, *args )
             else:
-                result = cls.attach( script )
+                result = cls.attach_script( script )
             if not result:
                 logger.error(
                     f"fallo el status script '{script}' se regreso el codigo "
