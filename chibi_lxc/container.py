@@ -281,8 +281,10 @@ class Container( metaclass=Container_meta ):
             if isinstance( script, tuple ):
                 args = cls._prepare_script_arguments( *script[1:] )
                 script = script[0]
+                script = cls._prepare_script_name( script )
                 result = cls.attach_script( script, *args )
             else:
+                script = cls._prepare_script_name( script )
                 result = cls.attach_script( script )
             if not result:
                 logger.error(
@@ -296,8 +298,10 @@ class Container( metaclass=Container_meta ):
             if isinstance( script, tuple ):
                 args = cls._prepare_script_arguments( *script[1:] )
                 script = script[0]
+                script = cls._prepare_script_name( script )
                 result = cls.attach_script( script, *args )
             else:
+                script = cls._prepare_script_name( script )
                 result = cls.attach_script( script )
             if not result:
                 logger.error(
@@ -316,6 +320,13 @@ class Container( metaclass=Container_meta ):
                     continue
             result.append( a )
         return result
+
+    @classmethod
+    def _prepare_script_name( cls, script ):
+        if script.startswith( 'cls.' ):
+            script = script[4:]
+            return getattr( cls, script )
+        return script
 
     @staticmethod
     def _prepare_script( script ):

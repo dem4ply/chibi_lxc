@@ -230,7 +230,10 @@ def main():
             for container in configuration.chibi_lxc.containers.values():
                 try:
                     info = container.info
-                    ip = info.ip
+                    if container.is_running:
+                        ip = info.ip
+                    else:
+                        ip = '-'
                     state = info.state
                     hosts = " ".join( container.hosts )
                     print( f'{container.name:<15}{state:<15}{ip:<15}{hosts}' )

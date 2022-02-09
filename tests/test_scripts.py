@@ -14,6 +14,27 @@ class Centos_test( Container ):
     )
 
 
+class Centos_test_cls_script( Container ):
+    name = 'centos_7_test'
+    some_script = 'asdf.sh'
+    provision_folders = {
+        'scripts': 'tests/scripts/'
+    }
+    scripts = (
+        'cls.some_script',
+    )
+
+class Centos_test_cls_script_params( Container ):
+    name = 'centos_7_test'
+    some_script = 'asdf.sh'
+    provision_folders = {
+        'scripts': 'tests/scripts/'
+    }
+    scripts = (
+        ( 'cls.some_script', 'asdf' ),
+    )
+
+
 class Centos_one_test( Centos_test ):
     name = 'centos_7_test'
     provision_folders = {
@@ -59,6 +80,14 @@ class Test_scripts( unittest.TestCase ):
 
     def test_run_scripts_should_work_property( self ):
         result = Centos_test.run_scripts()
+        self.assertIsNone( result )
+
+    def test_cls_variables_should_work( self ):
+        result = Centos_test_cls_script.run_scripts()
+        self.assertIsNone( result )
+
+    def test_cls_variables_with_params_should_work( self ):
+        result = Centos_test_cls_script_params.run_scripts()
         self.assertIsNone( result )
 
     def test_the_scripts_should_have_heritance( self ):
