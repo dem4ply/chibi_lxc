@@ -14,7 +14,7 @@ class Unexisting_container( Container ):
 
 
 class Centos_test( Container ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
 
 
 class Centos_test_auto_rename( Centos_test ):

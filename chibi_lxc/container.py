@@ -32,6 +32,7 @@ class Destruction_error( Exception ):
 class Container_meta( type ):
     def __new__( cls, clsname, bases, clsdict ):
         clsobj = super().__new__( cls, clsname, bases, clsdict )
+
         if isinstance( clsobj.provision_folders, dict ):
             for k, v in clsobj.provision_folders.items():
                 clsobj.provision_folders[k] = Chibi_path( v )
@@ -114,12 +115,13 @@ class Container_meta( type ):
 
 class Container( metaclass=Container_meta ):
     name = "unset"
-    distribution = 'centos'
+    distribution = 'rockylinux'
     arch = 'amd64'
     version = '8'
 
     provision_root = Chibi_path( 'home/chibi/provision/' )
     provision_folders = Chibi_atlas()
+    mounts = Chibi_atlas()
     scripts = None
     status_scripts = None
     extra_hosts = None
@@ -172,6 +174,11 @@ class Container( metaclass=Container_meta ):
             for k, v in cls.provision_folders.items() } )
 
     @Class_property
+    def mount( cls ):
+        config = cls.config.open().read()
+        return config.lxc.mount
+
+    @Class_property
     def script_folder( cls ):
         return '/' + cls.provision_root + 'scripts/'
 
@@ -221,8 +228,10 @@ class Container( metaclass=Container_meta ):
 
     @classmethod
     def provision( cls ):
-        config = cls.config.open().read()
         hosts = configuration.chibi_lxc.hosts
+
+        for mount_entry in cls.mounts:
+            cls.add_mount_entry( mount_entry )
 
         for k, v in cls.provision_folders.items():
             real_folder = cls.provision_folder[k]
@@ -230,29 +239,42 @@ class Container( metaclass=Container_meta ):
                 f"{real_folder}  {cls.provision_root}/{k} "
                 "none bind,create=dir 0 0" )
 
-            if "mount" not in config.lxc:
-                config.lxc.mount = Chibi_atlas( entry=[] )
-            entries = config.lxc.mount.entry
-            if not isinstance( entries, list ):
-                entries = [ entries ]
-            for entry in entries:
-                if entry == mount:
-                    break
-            else:
-                entries.append( mount )
-                cls.config.open().write( config )
-                config = cls.config.open().read()
+            cls.add_mount_entry( mount )
 
-            if not real_folder.exists:
-                real_folder.mkdir()
             if v.is_a_folder and not v.endswith( '/' ):
                 v = str( v ) + '/'
-            if not real_folder.exists:
-                real_folder.mkdir()
             Rsync.clone_dir().human().verbose().run(
                 v, real_folder )
             if hosts and hosts.exists:
                 hosts.copy( real_folder + 'hosts' )
+
+    @classmethod
+    def add_mount_entry( cls, mount_entry ):
+        if not isinstance( mount_entry, str ):
+            raise NotImplementedError(
+                "no esta implementado mandar un mount.entry "
+                "que no es un string" )
+
+        config = cls.config.open().read()
+        if "mount" not in config.lxc:
+            config.lxc.mount = Chibi_atlas( entry=[] )
+        entries = config.lxc.mount.entry
+        if not isinstance( entries, list ):
+            config.lxc.mount.entry = [ config.lxc.mount.entry ]
+            entries = config.lxc.mount.entry
+
+        mount_entry = mount_entry.replace( '$USER', os.environ[ 'USER' ] )
+        if mount_entry not in entries:
+            entries.append( mount_entry )
+            cls.config.open().write( config )
+        else:
+            logger.warning(
+                f'el mount.entry "{mount_entry}" ya se '
+                'encontraba en el config' )
+
+        real_folder = Chibi_path( mount_entry.split( ' ', 1 )[0] )
+        if not real_folder.exists:
+            real_folder.mkdir()
 
     @Class_property
     def hosts( cls ):

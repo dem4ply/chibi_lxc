@@ -10,7 +10,7 @@ class Centos_test( Container ):
     pass
 
 
-class Test_conifg_container( unittest.TestCase ):
+class Test_config_container( unittest.TestCase ):
     def test_container( self ):
         config = Containers()
         self.assertNotIn( Centos_test.name, config )

@@ -5,7 +5,7 @@ from chibi_lxc.container import Container
 
 
 class Centos_test( Container ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     provision_folders = {
         'scripts': 'tests/scripts/'
     }
@@ -15,7 +15,7 @@ class Centos_test( Container ):
 
 
 class Centos_test_cls_script( Container ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     some_script = 'asdf.sh'
     provision_folders = {
         'scripts': 'tests/scripts/'
@@ -25,7 +25,7 @@ class Centos_test_cls_script( Container ):
     )
 
 class Centos_test_cls_script_params( Container ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     some_script = 'asdf.sh'
     provision_folders = {
         'scripts': 'tests/scripts/'
@@ -36,7 +36,7 @@ class Centos_test_cls_script_params( Container ):
 
 
 class Centos_one_test( Centos_test ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     provision_folders = {
         'scripts': 'tests/scripts/'
     }
@@ -46,14 +46,14 @@ class Centos_one_test( Centos_test ):
 
 
 class Centos_two_test( Centos_one_test ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     provision_folders = {
         'scripts': 'tests/scripts/'
     }
 
 
 class Centos_child( Centos_test ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     provision_folders = {
         'scripts': 'tests/scripts/'
     }

@@ -66,11 +66,46 @@ def add_address_to_host( address, *hosts ):
     hosts_in_file.write()
 
 
+def check_if_containers_exists_in_config( containers ):
+    result = True
+    for container in containers:
+        if container not in configuration.chibi_lxc.containers:
+            print( f"no se encontro {container}" )
+            result = False
+    return result
+
+
+def list_containers(  ):
+    containers = configuration.chibi_lxc.containers
+    padding = max( map( lambda k: len( k ), containers.keys() ) )
+    padding += 2
+    padding_ip = len( '255.255.255.255' ) + 2
+    space_ip = " " * padding_ip
+    group_container = group_by(
+        containers.values(), lambda c: c.__module__ )
+    for group, list_of_container in group_container.items():
+        print( group )
+        for container in list_of_container:
+            try:
+                if container.is_running:
+                    ip = container.info.ip
+                    print(
+                        f"\t{container.name:{padding}} "
+                        f"{ip:{padding_ip}} {container}" )
+                else:
+                    print(
+                        f"\t{container.name:{padding}} "
+                        f"{space_ip} {container}" )
+            except Not_exists_error:
+                print(
+                    f"\t{container.name:{padding}}{space_ip} {container}" )
+
+
 def main():
     parser = argparse.ArgumentParser(
         "tool for build containers" )
     parser.add_argument(
-        "--log_level", dest="log_level", default="INFO",
+        "--log_level", dest="log_level", default='INFO',
         help="nivel de log", )
 
     parser.add_argument(
@@ -144,34 +179,18 @@ def main():
 
     args = parser.parse_args()
     basic_config( level=args.log_level )
+    if not args.config.exists:
+        logger.error( f"no se encontro el config {args.config}" )
+        return
     load_config( args.config )
 
     if args.command == 'list':
-        containers = configuration.chibi_lxc.containers
-        padding = max( map( lambda k: len( k ), containers.keys() ) )
-        padding += 2
-        padding_ip = len( '255.255.255.255' ) + 2
-        space_ip = " " * padding_ip
-        group_container = group_by(
-            containers.values(), lambda c: c.__module__ )
-        for group, list_of_container in group_container.items():
-            print( group )
-            for container in list_of_container:
-                try:
-                    if container.is_running:
-                        ip = container.info.ip
-                        print(
-                            f"\t{container.name:{padding}} "
-                            f"{ip:{padding_ip}} {container}" )
-                    else:
-                        print(
-                            f"\t{container.name:{padding}} "
-                            f"{space_ip} {container}" )
-                except Not_exists_error:
-                    print( f"\t{container.name:{padding}} {space_ip} {container}" )
+        list_containers()
 
     if args.command == 'up':
         containers = configuration.chibi_lxc.containers
+        if not check_if_containers_exists_in_config( args.containers ):
+            return 1
         for container in args.containers:
             container = containers[ container ]
             exists = container.exists
@@ -187,6 +206,8 @@ def main():
 
     if args.command == 'provision':
         containers = configuration.chibi_lxc.containers
+        if not check_if_containers_exists_in_config( args.containers ):
+            return 1
         for container in args.containers:
             if args.only_files:
                 container = containers[ container ]
@@ -202,6 +223,8 @@ def main():
 
     if args.command == 'status':
         containers = configuration.chibi_lxc.containers
+        if not check_if_containers_exists_in_config( args.containers ):
+            return 1
         for container in args.containers:
             print( container )
             container = containers[ container ]

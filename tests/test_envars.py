@@ -5,28 +5,28 @@ from chibi_lxc.container import Container
 
 
 class Centos_test( Container ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     env_vars = {
         'envar': 'test_1'
     }
 
 
 class Centos_one_test( Centos_test ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     env_vars = {
         'envar': 'test_1_1'
     }
 
 
 class Centos_two_test( Centos_one_test ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     env_vars = {
         'envar2': 'test_2'
     }
 
 
 class Centos_child( Centos_two_test ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     env_vars = {
         'envar2': 'test_2_2'
     }

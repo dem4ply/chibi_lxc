@@ -7,7 +7,7 @@ from chibi_lxc.container import Container, Not_exists_error
 
 
 class Centos_test( Container ):
-    name = 'centos_7_test'
+    name = 'rocky_test'
     provision_folders = {
         'scripts': 'tests/scripts'
     }
