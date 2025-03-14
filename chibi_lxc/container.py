@@ -5,6 +5,7 @@ from chibi.file import Chibi_path
 from chibi_command.lxc import lxc
 from chibi_command.lxc import delegate as lxc_delegate
 from chibi_command.rsync import Rsync
+from chibi_command import Result_error
 from chibi_hybrid import Class_property
 from chibi_lxc.file.config import Chibi_lxc_config
 from chibi_donkey.donkey import Donkey
@@ -141,7 +142,10 @@ class Container( metaclass=Container_meta ):
 
     @Class_property
     def info( cls ):
-        result = cls.lxc.Info.name( cls.name ).run()
+        try:
+            result = cls.lxc.Info.name( cls.name ).run()
+        except Result_error as e:
+            raise Not_exists_error( e.result.error ) from e
         if not result:
             raise Not_exists_error( result.error )
         return result.result
@@ -158,7 +162,10 @@ class Container( metaclass=Container_meta ):
 
     @Class_property
     def exists( cls ):
-        result = cls.lxc.Info.name( cls.name ).run()
+        try:
+            result = cls.lxc.Info.name( cls.name ).run()
+        except Result_error:
+            return False
         return bool( result )
 
     @Class_property

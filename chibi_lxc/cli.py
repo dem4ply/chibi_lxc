@@ -179,6 +179,8 @@ def main():
 
     args = parser.parse_args()
     basic_config( level=args.log_level )
+    if args.log_level == "INFO":
+        configuration.loggers[ 'chibi.command' ].level = "WARNING"
     if not args.config.exists:
         logger.error( f"no se encontro el config {args.config}" )
         return
